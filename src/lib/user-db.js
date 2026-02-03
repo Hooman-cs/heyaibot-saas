@@ -41,12 +41,11 @@ export async function createUser(userData) {
     await docClient.send(new PutCommand(params));
     return { success: true };
   } catch (error) {
-    // If user already exists, that's fine, just return success false
     return { success: false, error: error.message };
   }
 }
 
-// Function to update plan after payment
+// NEW: Function to update plan after payment
 export async function updateUserPlan(email, newPlan) {
   try {
     await docClient.send(new UpdateCommand({

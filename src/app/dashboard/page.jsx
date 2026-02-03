@@ -1,100 +1,55 @@
-import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getUserBots } from "@/lib/bot-db";
+"use client";
+import { useSession } from "next-auth/react";
 
-export default async function Dashboard() {
-  const session = await getServerSession(authOptions);
-  const bots = session ? await getUserBots(session.user.id) : [];
+export default function Dashboard() {
+  const { data: session } = useSession();
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">My Chatbots</h2>
-        <Link 
-          href="/dashboard/create-bot" 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-        >
-          + Create New Bot
-        </Link>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome, {session?.user?.name}</h1>
+      <p className="text-gray-600 mb-8">Manage your subscription and access your chatbot studio.</p>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Card 1: Current Plan */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Plan</h2>
+          <div className="text-3xl font-bold text-blue-600 capitalize mb-4">
+            {session?.user?.plan || "starter"}
+          </div>
+          <p className="text-gray-500 mb-6">
+            You are currently on the {session?.user?.plan || "starter"} tier.
+          </p>
+          <a href="/pricing" className="text-blue-600 hover:text-blue-800 font-medium text-sm">
+            Upgrade Plan &rarr;
+          </a>
+        </div>
+
+        {/* Card 2: Launch Studio */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-center items-center text-center">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <span className="text-4xl">🤖</span>
+          </div>
+          <h2 className="text-lg font-semibold text-gray-900">Chatbot Studio</h2>
+          <p className="text-gray-500 mb-6 text-sm">
+            Configure your bots, upload knowledge, and view chat logs.
+          </p>
+          {/* Replace this URL with your actual Chatbot App URL */}
+          {/* <a 
+            href="https://dashboard.heyaibot.com" 
+            target="_blank" 
+            className="w-full py-3 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium transition-all"
+          >
+            Launch Studio &rarr;
+          </a> */}
+          <a 
+            href="/api/launch-studio" 
+            target="_blank" 
+            className="w-full py-3 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium transition-all"
+          >
+            Launch Studio &rarr;
+          </a>
+        </div>
       </div>
-
-      {bots.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-          <h3 className="text-lg font-medium text-gray-900">No chatbots yet</h3>
-          <p className="mt-1 text-gray-500">Create your first AI assistant to get started.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bots.map((bot) => (
-            <div key={bot._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-bold text-lg text-gray-900">{bot.name}</h3>
-                <span className={`px-2 py-1 text-xs rounded-full ${bot.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                  {bot.status}
-                </span>
-              </div>
-              
-              <div className="space-y-2 text-sm text-gray-600 mb-6">
-                <p>Plan: <span className="font-medium capitalize">{bot.planType}</span></p>
-                <p>Created: {new Date(bot.createdAt).toLocaleDateString()}</p>
-              </div>
-
-              <div className="bg-gray-50 p-3 rounded text-xs font-mono break-all mb-4">
-                 &lt;script src="..." data-api-key="{bot.apiKey}"&gt;&lt;/script&gt;
-              </div>
-
-              <button className="w-full border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 text-sm">
-                Copy Embed Code
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
-
-
-
-
-// "use client";
-// import Link from "next/link";
-
-// export default function DashboardHome() {
-//   // Mock data for now (We will fetch real bots from DB later)
-//   const bots = []; 
-
-//   return (
-//     <div>
-//       <div className="flex justify-between items-center mb-8">
-//         <h2 className="text-2xl font-bold text-gray-800">My Chatbots</h2>
-//         <Link 
-//           href="/dashboard/create-bot" 
-//           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-//         >
-//           + Create New Bot
-//         </Link>
-//       </div>
-
-//       {bots.length === 0 ? (
-//         <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-//           <h3 className="text-lg font-medium text-gray-900">No chatbots yet</h3>
-//           <p className="mt-1 text-gray-500">Create your first AI assistant to get started.</p>
-//           <div className="mt-6">
-//             <Link 
-//               href="/dashboard/create-bot"
-//               className="text-blue-600 hover:text-blue-500 font-medium"
-//             >
-//               Create one now &rarr;
-//             </Link>
-//           </div>
-//         </div>
-//       ) : (
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//           {/* We will map bots here later */}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }

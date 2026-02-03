@@ -10,8 +10,15 @@ export async function GET(request) {
   // Optional security check
   // if (apiKey !== process.env.CHATBOT_ADMIN_KEY) return NextResponse.json({error:"Unauthorized"}, {status:401});
 
-  if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+  // if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+// Simple security check (Add this key to .env.local)
+  if (apiKey !== process.env.CHATBOT_ADMIN_KEY) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  if (!email) {
+    return NextResponse.json({ error: "Email required" }, { status: 400 });
+  }
   const user = await getUserByEmail(email);
 
   if (!user) {
