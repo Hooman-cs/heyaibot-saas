@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import Navbar from '../components/Navbar'; // Import added
-import Footer from '../components/Footer'; // Import added
+// import Navbar from '../components/Navbar'; // Import added
+// import Footer from '../components/Footer'; // Import added
 
 export default function Home() {
   return (
     <div className="bg-white">
-      <Navbar /> {/* Placed at top */}
+      {/* <Navbar /> Placed at top */}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-50 py-20 sm:py-32">
@@ -19,7 +19,7 @@ export default function Home() {
             HeyAiBot responds accurately, triggers actions, and captures leads 24×7.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link href="/contact" className="rounded-md bg-blue-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-500">
+            <Link href="/pricing" className="rounded-md bg-blue-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-500">
               Start Free Trial
             </Link>
             <Link href="/features" className="text-lg font-semibold leading-6 text-gray-900">
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer /> {/* Placed at bottom */}
+      {/* <Footer /> Placed at bottom */}
     </div>
   );
 }

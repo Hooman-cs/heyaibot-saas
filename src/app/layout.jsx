@@ -1,3 +1,5 @@
+// src/app/layout.jsx
+
 import "./globals.css";
 import Providers from "@/components/Providers";
 
@@ -18,6 +20,8 @@ export default function RootLayout({ children }) {
   );
 }
 
+// Former layout with Navbar and Footer
+// -----------------------------------------------------------
 // import "./globals.css";
 // import Navbar from "../components/Navbar";
 // import Footer from "../components/Footer";

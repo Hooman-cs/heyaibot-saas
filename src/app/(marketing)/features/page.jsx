@@ -1,5 +1,5 @@
-import Navbar from '../../components/Navbar'; // Import added
-import Footer from '../../components/Footer'; // Import added
+// import Navbar from '../../components/Navbar'; // Import added
+// import Footer from '../../components/Footer'; // Import added
 
 export default function Features() {
   const features = [
@@ -13,7 +13,7 @@ export default function Features() {
 
   return (
     <div className="py-24 bg-white">
-      <Navbar /> {/* Placed at top */}
+      {/* <Navbar /> Placed at top */}
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
@@ -39,7 +39,7 @@ export default function Features() {
         </div>
       </div>
 
-      <Footer /> {/* Placed at bottom */}
+      {/* <Footer /> Placed at bottom */}
     </div>
   );
 }

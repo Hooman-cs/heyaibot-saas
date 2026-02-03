@@ -24,7 +24,8 @@ export default function Navbar() {
             <Link href="/features" className="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Features</Link>
             <Link href="/faq" className="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">FAQ</Link>
             <Link href="/contact" className="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact</Link>
-            
+            <Link href="/pricing" className="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Price</Link>
+
             {/* Dynamic Auth Buttons */}
             {session ? (
               <Link href="/dashboard" className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
-import Navbar from '../../components/Navbar'; // Import added
-import Footer from '../../components/Footer'; // Import added
+// import Navbar from '../../components/Navbar'; // Import added
+// import Footer from '../../components/Footer'; // Import added
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ export default function ContactPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <Navbar /> {/* Placed at top */}
+      {/* <Navbar /> Placed at top */}
 
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="px-6 py-8">
@@ -90,7 +90,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <Footer /> {/* Placed at bottom */}
+      {/* <Footer /> Placed at bottom */}
     </div>
   );
 }

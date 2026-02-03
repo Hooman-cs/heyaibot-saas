@@ -1,14 +1,27 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import connectDB from "@/lib/db";
-import User from "@/models/User";
+import GoogleProvider from "next-auth/providers/google";
+import AzureADProvider from "next-auth/providers/azure-ad";
+import AppleProvider from "next-auth/providers/apple";
+import { getUserByEmail, createUser } from "@/lib/user-db";
 import bcrypt from "bcryptjs";
 
-const handler = NextAuth({
-  session: {
-    strategy: "jwt", // We are explicitly using JWT as requested
-  },
+export const authOptions = {
+  session: { strategy: "jwt" },
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    AzureADProvider({
+      clientId: process.env.MICROSOFT_CLIENT_ID,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      tenantId: process.env.MICROSOFT_TENANT_ID, 
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_ID,
+      clientSecret: process.env.APPLE_CLIENT_SECRET, 
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -16,29 +29,46 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        await connectDB();
+        if (!credentials?.email || !credentials?.password) throw new Error("Missing inputs");
+        
+        const user = await getUserByEmail(credentials.email);
+        if (!user) throw new Error("User not found");
+        if (!user.password) throw new Error("Please use your social login");
 
-        // 1. Check if user exists
-        const user = await User.findOne({ email: credentials.email });
-        if (!user) {
-          throw new Error("No user found with this email");
-        }
-
-        // 2. Check password
         const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) {
-          throw new Error("Invalid password");
-        }
+        if (!isValid) throw new Error("Invalid password");
 
-        // 3. Return user info (this goes into the JWT)
-        return { id: user._id, name: user.name, email: user.email };
+        return { id: user.email, name: user.name, email: user.email, plan: user.plan };
       },
     }),
   ],
-  pages: {
-    signIn: "/auth/login", // Custom login page we will build next
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account.provider !== "credentials") {
+        const existingUser = await getUserByEmail(user.email);
+        if (!existingUser) {
+          await createUser({
+            name: user.name || profile?.name || "User",
+            email: user.email,
+            authProvider: account.provider,
+            password: null 
+          });
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) token.plan = user.plan || "starter";
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) session.user.plan = token.plan;
+      return session;
+    }
   },
+  pages: { signIn: "/auth/login" },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

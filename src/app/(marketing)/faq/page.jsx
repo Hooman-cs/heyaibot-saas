@@ -1,5 +1,5 @@
-import Navbar from '../../components/Navbar'; // Import added
-import Footer from '../../components/Footer'; // Import added
+// import Navbar from '../../components/Navbar'; // Import added
+// import Footer from '../../components/Footer'; // Import added
  
 export default function FAQ() {
   const faqs = [
@@ -11,7 +11,7 @@ export default function FAQ() {
 
   return (
     <div className="bg-white py-24 sm:py-32">
-      <Navbar /> {/* Placed at top */}
+      {/* <Navbar /> Placed at top */}
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center mb-16">
@@ -27,7 +27,7 @@ export default function FAQ() {
         </div>
       </div>
 
-      <Footer /> {/* Placed at bottom */}
+      {/* <Footer /> Placed at bottom */}
     </div>
   );
 }
