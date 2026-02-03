@@ -1,13 +1,25 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Dashboard() {
   const { data: session } = useSession();
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome, {session?.user?.name}</h1>
-      <p className="text-gray-600 mb-8">Manage your subscription and access your chatbot studio.</p>
+      {/* <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome, {session?.user?.name}</h1>
+      <p className="text-gray-600 mb-8">Manage your subscription and access your chatbot studio.</p> */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome, {session?.user?.name}</h1>
+          <p className="text-gray-600">Manage your subscription and access your chatbot studio.</p>
+        </div>
+        <button 
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="text-red-600 hover:text-red-800 font-medium text-sm border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50"
+        >
+          Sign Out
+        </button>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Card 1: Current Plan */}

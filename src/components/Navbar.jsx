@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,9 +28,17 @@ export default function Navbar() {
 
             {/* Dynamic Auth Buttons */}
             {session ? (
-              <Link href="/dashboard" className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
-                Go to Dashboard
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link href="/dashboard" className="text-gray-900 font-medium hover:text-blue-600">
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
             ) : (
               <div className="flex space-x-4">
                 <Link href="/auth/login" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
