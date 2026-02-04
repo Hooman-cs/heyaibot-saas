@@ -1,4 +1,4 @@
-import { docClient } from "./lib/dynamodb";
+import { docClient } from "./dynamodb";
 import { PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
 const TABLE_NAME = "SaaSPayments";

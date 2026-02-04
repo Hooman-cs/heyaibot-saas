@@ -1,4 +1,4 @@
-import { docClient } from "./lib/dynamodb";
+import { docClient } from "./dynamodb";
 import { PutCommand, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
