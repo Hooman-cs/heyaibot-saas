@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { updateUserPlan } from "@/lib/user-db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { recordPayment } from "@/lib/payment-db";
 
 export async function POST(req) {
   try {
@@ -23,6 +24,16 @@ export async function POST(req) {
 
     // Update Plan + Expiration (Handled inside user-db.js)
     await updateUserPlan(session.user.email, plan);
+
+    // NEW: Record History
+  await recordPayment({
+    paymentId: razorpay_payment_id,
+    orderId: razorpay_order_id,
+    userId: session.user.email,
+    planId: plan,
+    amount: "PAID", // You should pass the actual amount from frontend if possible
+    status: "success"
+  });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,7 +1,8 @@
 {
-  "name": "heyaibot-saas",
-  "version": "0.1.0",
-  "private": true,
+  "name": "heyaibot-saas-sdk",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",

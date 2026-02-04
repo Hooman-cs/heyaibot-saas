@@ -1,4 +1,4 @@
-import { docClient } from "@/lib/dynamodb";
+import { docClient } from "./lib/dynamodb";
 import { PutCommand, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
@@ -33,6 +33,7 @@ export async function createUser(userData) {
       userId: newUserId,     // NEW: Unique User ID
       name: userData.name,
       password: hashedPassword,
+      role: "user",
       authProvider: userData.authProvider || "email",
       // CHANGE 1: Default plan is now "none"
       plan: "none", 
