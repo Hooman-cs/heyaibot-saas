@@ -15,6 +15,7 @@ export async function POST(request) {
     }
 
     const result = await createUser({ name, email, password });
+    console.log("Create User Result:", result, name, email, password);
     if (!result.success) throw new Error(result.error);
 
     return NextResponse.json({ message: "User registered" }, { status: 201 });
