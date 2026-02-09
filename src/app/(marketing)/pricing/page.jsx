@@ -2,13 +2,13 @@
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation"; 
 
 export default function Pricing() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState([]);
-  const router = useRouter(); // Initialize router
+  const router = useRouter(); 
 
   useEffect(() => {
     fetch("/api/admin/plans")
@@ -21,26 +21,24 @@ export default function Pricing() {
     setLoading(true);
 
     try {
-      // 1. Create Order (Send plan.id, NOT planId)
+      // FIX 1: Send 'plan.plan_id' (Correct DB Field)
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id }), 
+        body: JSON.stringify({ planId: plan.plan_id }), 
       });
       
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      // 2. Open Razorpay
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: data.amount, // Amount comes from backend
+        amount: data.amount,
         currency: "INR",
         name: "HeyAiBot",
-        description: `${plan.name} Subscription`,
+        description: `${plan.plan_name} Subscription`, // FIX 2: Correct Name
         order_id: data.orderId,
         handler: async function (response) {
-          // 3. Verify Payment
           await fetch("/api/payment/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -48,11 +46,11 @@ export default function Pricing() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              plan: plan.id // Save the Plan ID to the user record
+              plan: plan.plan_id // FIX 3: Correct ID
             })
           });
           
-          alert("Payment Successful! Your plan is active for 30 days.");
+          alert("Payment Successful! Your plan is active.");
           router.push("/dashboard");
         },
         prefill: {
@@ -83,10 +81,16 @@ export default function Pricing() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
-              <div key={plan.id} className="p-8 bg-white border rounded-2xl shadow-sm flex flex-col">
-                <h3 className="text-lg font-bold">{plan.name}</h3>
-                <div className="text-4xl font-bold mt-4">₹{plan.price}</div>
+              // FIX 4: Use 'plan.plan_id' for unique key
+              <div key={plan.plan_id} className="p-8 bg-white border rounded-2xl shadow-sm flex flex-col">
+                {/* FIX 5: Use 'plan_name' */}
+                <h3 className="text-lg font-bold">{plan.plan_name}</h3>
+                {/* FIX 6: Use 'amount' */}
+                <div className="text-4xl font-bold mt-4">₹{plan.amount}</div>
+                <div className="text-sm text-gray-500 mt-1">for {plan.duration || 30} days</div>
+                
                 <ul className="mt-8 space-y-3 flex-1">
+                  {/* Features are now provided by the updated API */}
                   {plan.features?.map((f, i) => (
                     <li key={i} className="flex gap-2">✓ {f}</li>
                   ))}
@@ -108,19 +112,20 @@ export default function Pricing() {
 
 
 
-// // Have to update the Razorpay integration to fetch dynamic plans from DB
+
 // "use client";
 // import Script from "next/script";
 // import { useState, useEffect } from "react";
 // import { useSession, signIn } from "next-auth/react";
+// import { useRouter } from "next/navigation"; // Import useRouter
 
 // export default function Pricing() {
 //   const { data: session } = useSession();
 //   const [loading, setLoading] = useState(false);
 //   const [plans, setPlans] = useState([]);
+//   const router = useRouter(); // Initialize router
 
 //   useEffect(() => {
-//     // Fetch dynamic plans from DB
 //     fetch("/api/admin/plans")
 //       .then((res) => res.json())
 //       .then((data) => setPlans(data));
@@ -129,29 +134,28 @@ export default function Pricing() {
 //   const handleCheckout = async (plan) => {
 //     if (!session) return signIn();
 //     setLoading(true);
-    
-//     // ... (Keep existing Razorpay Logic, but pass plan.price and plan.id) ...
-//     // NOTE: Update create-order API to accept raw amount or look up DB plan
-    
+
 //     try {
+//       // 1. Create Order (Send plan.id, NOT planId)
 //       const res = await fetch("/api/payment/create-order", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ planId }),
+//         body: JSON.stringify({ planId: plan.id }), 
 //       });
       
 //       const data = await res.json();
 //       if (!res.ok) throw new Error(data.error);
 
+//       // 2. Open Razorpay
 //       const options = {
 //         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-//         amount: data.amount,
+//         amount: data.amount, // Amount comes from backend
 //         currency: "INR",
 //         name: "HeyAiBot",
-//         description: `${planId.toUpperCase()} Plan Subscription`,
+//         description: `${plan.name} Subscription`,
 //         order_id: data.orderId,
 //         handler: async function (response) {
-//           // Verify and Update Plan
+//           // 3. Verify Payment
 //           await fetch("/api/payment/verify", {
 //             method: "POST",
 //             headers: { "Content-Type": "application/json" },
@@ -159,7 +163,7 @@ export default function Pricing() {
 //               razorpay_order_id: response.razorpay_order_id,
 //               razorpay_payment_id: response.razorpay_payment_id,
 //               razorpay_signature: response.razorpay_signature,
-//               plan: planId
+//               plan: plan.id // Save the Plan ID to the user record
 //             })
 //           });
           
@@ -181,7 +185,6 @@ export default function Pricing() {
 //     } finally {
 //       setLoading(false);
 //     }
-
 //   };
 
 //   return (
@@ -205,7 +208,7 @@ export default function Pricing() {
 //                 </ul>
 //                 <button
 //                   onClick={() => handleCheckout(plan)}
-//                   className="mt-8 w-full py-3 bg-blue-600 text-white rounded-md"
+//                   className="mt-8 w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
 //                 >
 //                   {loading ? "Processing..." : "Subscribe"}
 //                 </button>

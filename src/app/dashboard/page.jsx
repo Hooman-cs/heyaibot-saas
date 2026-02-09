@@ -6,7 +6,7 @@ export default function Dashboard() {
   const { data: session } = useSession();
   
   // Check role
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = session?.user?.isSuperAdmin === true;
 
   // Determine where the button takes them
   // 1. Admins go to their special dashboard URL (Add this to .env.local)
@@ -47,7 +47,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Plan</h2>
           <div className="text-3xl font-bold text-blue-600 capitalize mb-4">
-            {session?.user?.plan || "None"}
+            {session?.user?.planName || "None"}
           </div>
           <p className="text-gray-500 mb-6 text-sm">
             {session?.user?.plan === 'none' 

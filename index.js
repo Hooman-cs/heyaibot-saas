@@ -1,7 +1,7 @@
 // index.js
 export * from './src/lib/user-db';
 export * from './src/lib/plan-db';
-export * from './src/lib/payment-db';
+export * from './src/lib/subscription-db';
 export { authOptions } from './src/lib/auth-config';
 
 

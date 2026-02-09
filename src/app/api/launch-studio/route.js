@@ -1,30 +1,29 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getUserByEmail } from "@/lib/user-db";
+import { authOptions } from "@/lib/auth-config";
+import { getUserSubscription } from "@/lib/subscription-db";
 import crypto from "crypto";
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.redirect(new URL("/auth/login", req.url));
 
-  // 1. Get Full User Record
-  const user = await getUserByEmail(session.user.email);
-  
-  // 2. Expiration Check
-  const now = new Date();
-  const expiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
-  const planId = user.plan || "none";
+  // 1. Get Subscription (Checks expiration internally)
+  const sub = await getUserSubscription(session.user.id);
 
-  if (planId === "none" || (expiresAt && expiresAt < now)) {
+  // 2. Check Validity
+  if (!sub || sub.status !== 'active') {
+    // Redirect to pricing if no active sub
     return NextResponse.redirect(new URL("/pricing", req.url));
   }
 
-  // 3. Create Payload with IDs
+  // 3. Create Payload
   const payload = JSON.stringify({
-    userId: user.userId, // Stable UUID
-    planId: planId,      // Plan ID from DB (e.g. "growth" or "p_123")
-    email: user.email,
+    userId: session.user.id,
+    userEmail: session.user.email,
+    isSuperAdmin: session.user.isSuperAdmin,
+    planId: sub.plan_id,
+    subscriptionId: sub.payment_id, // Chatbot uses this to fetch snapshot limits
     ts: Date.now()
   });
   
@@ -33,52 +32,53 @@ export async function GET(req) {
   const token = Buffer.from(payload).toString('base64');
   const signature = crypto.createHmac("sha256", secret).update(token).digest("hex");
 
-  const chatbotUrl = process.env.CHATBOT_DASHBOARD_URL; 
-  return NextResponse.redirect(`${chatbotUrl}/auth/sso?token=${token}&sig=${signature}`);
+  // const chatbotUrl = process.env.NEXT_PUBLIC_CHATBOT_URL || "https://dashboard.heyaibot.com";
+  //return NextResponse.redirect(`${chatbotUrl}/auth/sso?token=${token}&sig=${signature}`);
+
+  //const chatbotUrl = "https://webhook.site/b7b99614-253f-44f7-bf13-51d1b35f9f97";
+
+  // Temporarily hardcode this to ensure it stays local
+const chatbotUrl = "http://localhost:3000"; 
+return NextResponse.redirect(`${chatbotUrl}/api/debug?token=${token}&sig=${signature}`);
 }
+
 
 
 // import { NextResponse } from "next/server";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-// import { getUserByEmail } from "@/lib/user-db"; // We need to check DB for expiration
+// import { getUserByEmail } from "@/lib/user-db";
 // import crypto from "crypto";
 
 // export async function GET(req) {
 //   const session = await getServerSession(authOptions);
+//   if (!session) return NextResponse.redirect(new URL("/auth/login", req.url));
 
-//   if (!session) {
-//     return NextResponse.redirect(new URL("/auth/login", req.url));
-//   }
-
-//   // 1. Fetch fresh user data (to check expiration)
+//   // 1. Get Full User Record
 //   const user = await getUserByEmail(session.user.email);
-//   const userPlan = user?.plan || "none";
-//   const expiresAt = user?.planExpiresAt ? new Date(user.planExpiresAt) : null;
+  
+//   // 2. Expiration Check
 //   const now = new Date();
+//   const expiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
+//   const planId = user.plan || "none";
 
-//   // 2. CHECK: Is plan 'none' or 'expired'?
-//   if (userPlan === "none" || (expiresAt && expiresAt < now)) {
-//     // Redirect to Pricing Page
+//   if (planId === "none" || (expiresAt && expiresAt < now)) {
 //     return NextResponse.redirect(new URL("/pricing", req.url));
 //   }
 
-//   // 3. Create Signed Token
-//   const secret = process.env.NEXTAUTH_SECRET; 
-//   const timestamp = Date.now();
-  
+//   // 3. Create Payload with IDs
 //   const payload = JSON.stringify({
-//     userId: user.userId,
+//     userId: user.userId, // Stable UUID
+//     planId: planId,      // Plan ID from DB (e.g. "growth" or "p_123")
 //     email: user.email,
-//     plan: userPlan,
-//     ts: timestamp
+//     ts: Date.now()
 //   });
   
+//   // 4. Sign & Redirect
+//   const secret = process.env.NEXTAUTH_SECRET;
 //   const token = Buffer.from(payload).toString('base64');
 //   const signature = crypto.createHmac("sha256", secret).update(token).digest("hex");
 
-//   const chatbotUrl = process.env.CHATBOT_DASHBOARD_URL || "http://localhost:5000"; 
-//   const redirectUrl = `${chatbotUrl}/auth/sso?token=${token}&sig=${signature}`;
-  
-//   return NextResponse.redirect(redirectUrl);
+//   const chatbotUrl = process.env.CHATBOT_DASHBOARD_URL; 
+//   return NextResponse.redirect(`${chatbotUrl}/auth/sso?token=${token}&sig=${signature}`);
 // }
